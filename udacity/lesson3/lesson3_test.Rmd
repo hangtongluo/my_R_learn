@@ -1,0 +1,218 @@
+---
+title: "lesson3_test"
+author: "lht"
+date: "2017年7月23日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## 钻石数据初探
+```{r}
+library(ggplot2)
+data("diamonds")
+
+summary(diamonds)
+str(diamonds)
+
+
+```
+
+## 价格直方图
+```{r}
+names(diamonds)
+
+qplot(data = diamonds, x = price, binwidth = 400,
+      color = I('black'), fill = I('#099DD9')) +
+  scale_x_continuous(breaks = seq(0,20000, 1000))
+
+summary(diamonds$price)
+
+```
+
+## 钻石数量
+
+```{r}
+sum(diamonds$price < 500)
+
+sum(diamonds$price < 250)
+
+sum(diamonds$price >= 15000)
+
+```
+
+
+## facet_wrap函数使用:
+```{r}
+names(diamonds)
+str(diamonds)
+table(diamonds$cut)
+
+by(diamonds$price, diamonds$cut, summary)
+
+qplot(data = diamonds, x = price) +
+  facet_wrap(~cut)
+
+
+```
+
+
+```{r}
+p1 <- qplot(data = diamonds, x = price)
+
+p2 <- qplot(data = diamonds, x = price) +
+  scale_x_log10()
+
+p3 <- qplot(data = diamonds, x = price) +
+  scale_x_sqrt()
+
+grid.arrange(p1, p2, p3, ncol = 1)
+
+
+```
+
+
+
+## 价格箱线图
+```{r}
+names(diamonds)
+by(diamonds$price, diamonds$color, summary)
+qplot(data = diamonds, y = price, x = color, 
+      geom = 'boxplot',
+      color = I('black'), fill = I('#099DD9')) + 
+  coord_cartesian(ylim = c(0,15000))
+
+by(diamonds$price, diamonds$cut, summary)
+qplot(data = diamonds, y = price, x = cut, 
+      geom = 'boxplot',
+      color = I('red'), fill = I('#002389'))
+
+by(diamonds$price, diamonds$clarity, summary)
+qplot(data = diamonds, y = price, x = clarity, 
+      geom = 'boxplot')
+
+
+
+```
+
+
+## 四分位数
+```{r}
+summary(diamonds$price)
+
+summary(subset(diamonds, color == 'J')$price)
+by(diamonds$price, diamonds$color, summary)
+
+for(name in unique(diamonds$color)){
+  print(name)
+  print(IQR(subset(diamonds, color == name)$price))
+  cat(name, IQR(subset(diamonds, color == name)$price))
+}
+
+
+
+```
+
+
+```{r}
+names(diamonds)
+
+qplot(data = diamonds, y = price, x = color, 
+      geom = 'boxplot',
+      color = I('black'), fill = I('#099DD9'))
+
+qplot(y = diamonds$price/diamonds$carat, x = diamonds$color, 
+      geom = 'boxplot', color = diamonds$color)
+
+qplot(data = diamonds, y = price/carat, x = color, 
+      geom = 'boxplot', color = color)
+
+```
+
+##克拉频率多边形
+```{r}
+names(diamonds)
+qplot(data = diamonds, x = price, geom = 'freqpoly', 
+      color = color, binwidth = 500)
+
+qplot(data = diamonds, x = carat, geom = 'freqpoly', color = color, binwidth = 0.1) + 
+  scale_x_continuous(limits = c(0,3), breaks = seq(0,3, 0.2))
+  # stat_bin(bins = 300)
+  
+
+# table(diamonds$color)
+
+```
+
+
+## 数据加工和数据整理包
+tidyr - 用于重塑数据布局的包
+dplyr - 用于帮助转换整洁的表格数据的包
+
+```{r}
+install.packages("tidyr")
+install.packages("dplyr")
+
+library(tidyr)
+library(dplyr)
+
+
+```
+
+```{r}
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
