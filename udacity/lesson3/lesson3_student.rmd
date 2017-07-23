@@ -1,0 +1,963 @@
+Lesson 3
+========================================================
+
+***
+
+### What to Do First?
+Notes:
+
+***
+
+### Pseudo-Facebook User Data
+Notes:
+
+```{r Pseudo-Facebook User Data}
+getwd()
+setwd('C:/Users/Administrator/Desktop/R/EDA_Course_Materials/lesson3')
+list.files() #列出目录中的文件
+df <- read.csv('pseudo_facebook.tsv', sep = "\t")
+names(df)
+```
+
+***
+
+### Histogram of Users' Birthdays
+Notes:
+
+```{r Histogram of Users\' Birthdays}
+# install.packages('ggplot2')
+library(ggplot2)
+
+qplot(data = df,x = dob_day) + 
+  scale_x_continuous(breaks = 1:31)
+  # scale_x_discrete(breaks=1:31)
+
+
+
+
+```
+
+***
+
+#### What are some things that you notice about this histogram?
+Response:注册帐号时，很多网站会将你的生日默认为1号，甚至1月1号。对于 Facebook，他们的默认是1月1日。
+
+***
+
+### Moira's Investigation
+Notes:
+
+***
+
+### Estimating Your Audience Size
+Notes:
+
+***
+
+#### Think about a time when you posted a specific message or shared a photo on Facebook. What was it?
+Response:
+
+#### How many of your friends do you think saw that post?
+Response:
+
+#### Think about what percent of your friends on Facebook see any posts or comments that you make in a month. What percent do you think that is?
+Response:
+
+***
+
+### Perceived Audience Size
+Notes:
+
+***
+### Faceting
+Notes:
+
+```{r Faceting}
+qplot(data = df, x = dob_day) + 
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~dob_month, nrow = 3)
+  # facet_grid()
+
+```
+
+#### Let鈥檚 take another look at our plot. What stands out to you here?
+Response:
+
+***
+
+### Be Skeptical - Outliers and Anomalies
+Notes:
+
+***
+
+### Moira's Outlier
+Notes:
+#### Which case do you think applies to Moira鈥檚 outlier?
+Response:
+
+***
+
+### Friend Count
+Notes:
+
+#### What code would you enter to create a histogram of friend counts?
+
+```{r Friend Count}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count)
+
+
+
+
+
+```
+
+#### How is this plot similar to Moira's first plot?
+Response:
+
+***
+
+### Limiting the Axes
+Notes:
+
+```{r Limiting the Axes}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count, xlim = c(0, 1000))
+
+qplot(data = df, x = friend_count, binwidth = 25) + 
+  scale_x_continuous(limits = c(0, 1000), 
+                     breaks = seq(0, 1000, 50))
+```
+
+### Exploring with Bin Width
+Notes:
+
+***
+
+### Adjusting the Bin Width
+Notes:
+
+### Faceting Friend Count
+```{r Faceting Friend Count}
+# What code would you add to create a facet the histogram by gender?
+# Add it to the code below.
+qplot(x = friend_count, data = df, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50))
+```
+
+***
+
+### Omitting NA Values
+Notes:
+
+```{r Omitting NA Values}
+qplot(data = subset(df, !is.na(gender)), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+
+qplot(data = na.omit(df), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)     #na.omit会省略所有含有na的行,不光对于gender
+
+```
+
+***
+
+### Statistics 'by' Gender
+Notes:
+
+```{r Statistics \'by\' Gender}
+table(df$gender)
+by(df$friend_count, df$gender, summary) #注意中位数小于均值（因为数据是长尾分布）中位数比均值更加稳健
+
+
+```
+
+#### Who on average has more friends: men or women?
+Response:
+
+#### What's the difference between the median friend count for women and men?
+Response:
+
+#### Why would the median be a better measure than the mean?
+Response:
+
+***
+
+### Tenure
+参数 color 决定了图中对象的轮廓线颜色（color outline）。 
+参数 fill 决定了图中对象内的区域（area）颜色。 
+你可能注意到颜色 black 和十六进制代码的颜色 #099DD9（一种蓝色阴影）如何封装在 I() 内。I() 函数代表“现状”，并且告诉 qplot 将它们用作颜色。 
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure), data = pf) + 
+   geom_histogram(binwidth = 30, color = 'black', fill = '#099DD9')
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure/365), data = pf) + 
+   geom_histogram(binwidth = .25, color = 'black', fill = '#F79420')
+
+Notes:
+
+```{r Tenure}
+qplot(data = df, x = tenure, binwidth = 30, 
+      color = I('black'), fill = I('#099DD9'))
+
+
+
+
+```
+
+***
+
+#### How would you create a histogram of tenure by year?
+
+```{r Tenure Histogram by Year}
+qplot(data = df, x = tenure/365, binwidth = .25, 
+      color = I('black'), fill = I('#F79420')) +
+  scale_x_continuous(limits = c(0,7), breaks = seq(1,7,1))
+
+```
+
+***
+
+### Labeling Plots
+Notes:
+
+```{r Labeling Plots}
+Lesson 3
+========================================================
+
+***
+
+### What to Do First?
+Notes:
+
+***
+
+### Pseudo-Facebook User Data
+Notes:
+
+```{r Pseudo-Facebook User Data}
+getwd()
+setwd('C:/Users/Administrator/Desktop/R/EDA_Course_Materials/lesson3')
+list.files() #列出目录中的文件
+df <- read.csv('pseudo_facebook.tsv', sep = "\t")
+names(df)
+```
+
+***
+
+### Histogram of Users' Birthdays
+Notes:
+
+```{r Histogram of Users\' Birthdays}
+# install.packages('ggplot2')
+library(ggplot2)
+
+qplot(data = df,x = dob_day) + 
+  scale_x_continuous(breaks = 1:31)
+  # scale_x_discrete(breaks=1:31)
+
+
+
+
+```
+
+***
+
+#### What are some things that you notice about this histogram?
+Response:注册帐号时，很多网站会将你的生日默认为1号，甚至1月1号。对于 Facebook，他们的默认是1月1日。
+
+***
+
+### Moira's Investigation
+Notes:
+
+***
+
+### Estimating Your Audience Size
+Notes:
+
+***
+
+#### Think about a time when you posted a specific message or shared a photo on Facebook. What was it?
+Response:
+
+#### How many of your friends do you think saw that post?
+Response:
+
+#### Think about what percent of your friends on Facebook see any posts or comments that you make in a month. What percent do you think that is?
+Response:
+
+***
+
+### Perceived Audience Size
+Notes:
+
+***
+### Faceting
+Notes:
+
+```{r Faceting}
+qplot(data = df, x = dob_day) + 
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~dob_month, nrow = 3)
+  # facet_grid()
+
+```
+
+#### Let鈥檚 take another look at our plot. What stands out to you here?
+Response:
+
+***
+
+### Be Skeptical - Outliers and Anomalies
+Notes:
+
+***
+
+### Moira's Outlier
+Notes:
+#### Which case do you think applies to Moira鈥檚 outlier?
+Response:
+
+***
+
+### Friend Count
+Notes:
+
+#### What code would you enter to create a histogram of friend counts?
+
+```{r Friend Count}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count)
+
+
+
+
+
+```
+
+#### How is this plot similar to Moira's first plot?
+Response:
+
+***
+
+### Limiting the Axes
+Notes:
+
+```{r Limiting the Axes}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count, xlim = c(0, 1000))
+
+qplot(data = df, x = friend_count, binwidth = 25) + 
+  scale_x_continuous(limits = c(0, 1000), 
+                     breaks = seq(0, 1000, 50))
+```
+
+### Exploring with Bin Width
+Notes:
+
+***
+
+### Adjusting the Bin Width
+Notes:
+
+### Faceting Friend Count
+```{r Faceting Friend Count}
+# What code would you add to create a facet the histogram by gender?
+# Add it to the code below.
+qplot(x = friend_count, data = df, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50))
+```
+
+***
+
+### Omitting NA Values
+Notes:
+
+```{r Omitting NA Values}
+qplot(data = subset(df, !is.na(gender)), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+
+qplot(data = na.omit(df), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)     #na.omit会省略所有含有na的行,不光对于gender
+
+```
+
+***
+
+### Statistics 'by' Gender
+Notes:
+
+```{r Statistics \'by\' Gender}
+table(df$gender)
+by(df$friend_count, df$gender, summary) #注意中位数小于均值（因为数据是长尾分布）中位数比均值更加稳健
+
+
+```
+
+#### Who on average has more friends: men or women?
+Response:
+
+#### What's the difference between the median friend count for women and men?
+Response:
+
+#### Why would the median be a better measure than the mean?
+Response:
+
+***
+
+### Tenure
+参数 color 决定了图中对象的轮廓线颜色（color outline）。 
+参数 fill 决定了图中对象内的区域（area）颜色。 
+你可能注意到颜色 black 和十六进制代码的颜色 #099DD9（一种蓝色阴影）如何封装在 I() 内。I() 函数代表“现状”，并且告诉 qplot 将它们用作颜色。 
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure), data = pf) + 
+   geom_histogram(binwidth = 30, color = 'black', fill = '#099DD9')
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure/365), data = pf) + 
+   geom_histogram(binwidth = .25, color = 'black', fill = '#F79420')
+
+Notes:
+
+```{r Tenure}
+qplot(data = df, x = tenure, binwidth = 30, 
+      color = I('black'), fill = I('#099DD9'))
+
+
+
+
+```
+
+***
+
+#### How would you create a histogram of tenure by year?
+
+```{r Tenure Histogram by Year}
+qplot(data = df, x = tenure/365, binwidth = .25, 
+      color = I('black'), fill = I('#F79420'), xlab = 'x', ylab = 'y') +
+  scale_x_continuous(limits = c(0,7), breaks = seq(1,7,1))
+
+```
+
+***
+
+### Labeling Plots
+Notes:
+
+```{r Labeling Plots}
+
+Lesson 3
+========================================================
+
+***
+
+### What to Do First?
+Notes:
+
+***
+
+### Pseudo-Facebook User Data
+Notes:
+
+```{r Pseudo-Facebook User Data}
+getwd()
+setwd('C:/Users/Administrator/Desktop/R/EDA_Course_Materials/lesson3')
+list.files() #列出目录中的文件
+df <- read.csv('pseudo_facebook.tsv', sep = "\t")
+names(df)
+```
+
+***
+
+### Histogram of Users' Birthdays
+Notes:
+
+```{r Histogram of Users\' Birthdays}
+# install.packages('ggplot2')
+library(ggplot2)
+
+qplot(data = df,x = dob_day) + 
+  scale_x_continuous(breaks = 1:31)
+  # scale_x_discrete(breaks=1:31)
+
+
+
+
+```
+
+***
+
+#### What are some things that you notice about this histogram?
+Response:注册帐号时，很多网站会将你的生日默认为1号，甚至1月1号。对于 Facebook，他们的默认是1月1日。
+
+***
+
+### Moira's Investigation
+Notes:
+
+***
+
+### Estimating Your Audience Size
+Notes:
+
+***
+
+#### Think about a time when you posted a specific message or shared a photo on Facebook. What was it?
+Response:
+
+#### How many of your friends do you think saw that post?
+Response:
+
+#### Think about what percent of your friends on Facebook see any posts or comments that you make in a month. What percent do you think that is?
+Response:
+
+***
+
+### Perceived Audience Size
+Notes:
+
+***
+### Faceting
+Notes:
+
+```{r Faceting}
+qplot(data = df, x = dob_day) + 
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~dob_month, nrow = 3)
+  # facet_grid()
+
+```
+
+#### Let鈥檚 take another look at our plot. What stands out to you here?
+Response:
+
+***
+
+### Be Skeptical - Outliers and Anomalies
+Notes:
+
+***
+
+### Moira's Outlier
+Notes:
+#### Which case do you think applies to Moira鈥檚 outlier?
+Response:
+
+***
+
+### Friend Count
+Notes:
+
+#### What code would you enter to create a histogram of friend counts?
+
+```{r Friend Count}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count)
+
+
+
+
+
+```
+
+#### How is this plot similar to Moira's first plot?
+Response:
+
+***
+
+### Limiting the Axes
+Notes:
+
+```{r Limiting the Axes}
+ggplot(data = df, aes(x = friend_count)) +
+  geom_histogram()
+
+qplot(data = df, x = friend_count, xlim = c(0, 1000))
+
+qplot(data = df, x = friend_count, binwidth = 25) + 
+  scale_x_continuous(limits = c(0, 1000), 
+                     breaks = seq(0, 1000, 50))
+```
+
+### Exploring with Bin Width
+Notes:
+
+***
+
+### Adjusting the Bin Width
+Notes:
+
+### Faceting Friend Count
+```{r Faceting Friend Count}
+# What code would you add to create a facet the histogram by gender?
+# Add it to the code below.
+qplot(x = friend_count, data = df, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50))
+```
+
+***
+
+### Omitting NA Values
+Notes:
+
+```{r Omitting NA Values}
+qplot(data = subset(df, !is.na(gender)), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+
+qplot(data = na.omit(df), x = friend_count, binwidth = 20) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)     #na.omit会省略所有含有na的行,不光对于gender
+
+```
+
+***
+
+### Statistics 'by' Gender
+Notes:
+
+```{r Statistics \'by\' Gender}
+table(df$gender)
+by(df$friend_count, df$gender, summary) #注意中位数小于均值（因为数据是长尾分布）中位数比均值更加稳健
+
+
+```
+
+#### Who on average has more friends: men or women?
+Response:
+
+#### What's the difference between the median friend count for women and men?
+Response:
+
+#### Why would the median be a better measure than the mean?
+Response:
+
+***
+
+### Tenure
+参数 color 决定了图中对象的轮廓线颜色（color outline）。 
+参数 fill 决定了图中对象内的区域（area）颜色。 
+你可能注意到颜色 black 和十六进制代码的颜色 #099DD9（一种蓝色阴影）如何封装在 I() 内。I() 函数代表“现状”，并且告诉 qplot 将它们用作颜色。 
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure), data = pf) + 
+   geom_histogram(binwidth = 30, color = 'black', fill = '#099DD9')
+
+等效的 ggplot 语法： 
+ggplot(aes(x = tenure/365), data = pf) + 
+   geom_histogram(binwidth = .25, color = 'black', fill = '#F79420')
+
+Notes:
+
+```{r Tenure}
+qplot(data = df, x = tenure, binwidth = 30, 
+      color = I('black'), fill = I('#099DD9'))
+
+
+
+
+```
+
+***
+
+#### How would you create a histogram of tenure by year?
+
+```{r Tenure Histogram by Year}
+qplot(data = df, x = tenure/365, binwidth = .25, 
+      color = I('black'), fill = I('#F79420'), xlab = 'x', ylab = 'y') +
+  scale_x_continuous(limits = c(0,7), breaks = seq(1,7,1))
+
+```
+
+***
+
+### Labeling Plots
+Notes:
+
+```{r Labeling Plots}
+qplot(data = df, x = tenure/365, binwidth = .25, 
+      color = I('black'), fill = I('#F79420')) +
+  scale_x_continuous(limits = c(0,7), breaks = seq(1,7,1))
+
+```
+
+***
+
+### User Ages
+Notes:
+
+```{r User Ages}
+qplot(data = df, x = age, binwidth = 1,
+      color = I('black'), fill = I('#5760AB'), 
+      xlab = 'x', ylab = 'y') +
+  scale_x_continuous(limits = c(1, 120), breaks = seq(0,113,5))
+
+summary(df$age)
+
+```
+
+#### What do you notice?
+Response:
+
+***
+
+### The Spread of Memes
+Notes:
+
+***
+
+### Lada's Money Bag Meme
+Notes:
+
+***
+
+### Transforming Data
+Notes:
+
+***
+
+### Add a Scaling Layer
+Notes:
+
+```{r Add a Scaling Layer}
+p1 <- qplot(data = df, x = friend_count)
+
+summary(df$friend_count)
+
+summary(log10(df$friend_count +1)) #取log变换消除长尾
+
+qplot(x = log10(df$friend_count +1))
+p2 <- p1 + 
+  scale_x_log10()
+
+
+qplot(x = sqrt(df$friend_count +1))
+p3 <- p1 + 
+  scale_x_sqrt()
+
+
+# install.packages("gridExtra") #一个图像框内创建多个图
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol=1)
+
+
+p4 <- ggplot(aes(x = friend_count), data = df) +
+  geom_histogram()
+
+p5 <- ggplot(aes(x = friend_count), data = df) +
+  geom_histogram() +
+  scale_x_log10()
+
+p6 <- ggplot(aes(x = friend_count), data = df) +
+  geom_histogram() +
+  scale_x_sqrt()
+
+grid.arrange(p4, p5, p6, ncol=1)
+
+ggplot(aes(x = friend_count), data = df) +
+  geom_density()
+
+
+```
+
+***
+请注意，sum(..count..) 将跨颜色进行总计，因此，显示的百分比是总用户数的百分比。要在每个组内绘制百分比，你可以尝试
+y = ..density...
+请注意，频率多边形的形状取决于我们如何设置箱子——在个别直方图中，线条的高度与条形的高度相同，但线条更容易进行比较，因为它们都在同一轴上。
+
+### Frequency Polygons
+
+```{r Frequency Polygons}
+ggplot(aes(x = friend_count, y = ..count../sum(..count..)), 
+       data = subset(df, !is.na(gender))) + 
+  geom_freqpoly(aes(color = gender), binwidth=10) + 
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + 
+  xlab('好友数量') + 
+  ylab('Percentage of users with that friend count')
+
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count,
+      binwidth=10) +
+  scale_x_continuous(limits = c(0,1000), breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count, 
+      binwidth=10, color = gender) +
+  scale_x_continuous(limits = c(0,1000), breaks = seq(0, 1000, 50))
+
+##########################################################################
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count, 
+      y =..count../sum(..count..),
+      binwidth = 10, color = gender, geom = 'freqpoly',
+      xlab = '好友数量', 
+      ylab = 'Percentage of users with that friend count') +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50))
+
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count, y = ..density..,
+      binwidth = 10, color = gender, geom = 'freqpoly',
+      xlab = '好友数量', 
+      ylab = 'Percentage of users with that friend count') +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50))
+
+##########################################################################
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count, 
+      y =..count../sum(..count..),
+      binwidth = 5, color = gender, geom = 'freqpoly',
+      xlab = '好友数量', 
+      ylab = 'Percentage of users with that friend count') +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50))
+
+
+qplot(data = subset(df, !is.na(df$gender)), x = friend_count, y = ..density..,
+      binwidth = 5, color = gender, geom = 'freqpoly',
+      xlab = '好友数量', 
+      ylab = 'Percentage of users with that friend count') +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50))
+
+
+
+
+```
+
+***
+
+### Likes on the Web
+Notes:
+
+```{r Likes on the Web}
+by(df$www_likes, df$gender, summary)
+
+by(df$www_likes, df$gender, sum) # 用sum函数对www_likes字段通过gender分组统计
+
+
+
+```
+
+
+***
+
+### Box Plots
+Notes:
+
+```{r Box Plots}
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender)
+
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender, ylim = c(0, 1000))
+
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender) + 
+  scale_y_continuous(limits = c(0, 1000))
+
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender) + 
+  coord_cartesian(ylim = c(0, 1000))
+
+by(df$friend_count, df$gender, summary)
+
+
+#对比下面两个图可以发现当在qplot中使用ylim时，变换不同的ylim将得到数据的不同变换
+#与我们的数据不符，在coord_cartesian中使用会得到数据相符的不同的图像
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender) + 
+  coord_cartesian(ylim = c(0, 250))
+
+qplot(data = subset(df, !is.na(df$gender)), geom = 'boxplot', 
+      y = friend_count, x = gender) + 
+  scale_y_continuous(limits = c(0, 250))
+
+
+
+
+
+```
+
+#### Adjust the code to focus on users who have friend counts between 0 and 1000.
+
+```{r}
+
+```
+
+***
+
+### Box Plots, Quartiles, and Friendships
+Notes:
+
+```{r Box Plots, Quartiles, and Friendships}
+by(df$friendships_initiated, df$gender, summary)
+
+qplot(data = subset(df, !is.na(df$gender)), y = friendships_initiated, x = gender,
+      geom = 'boxplot') + 
+  coord_cartesian(ylim = c(0, 150))
+
+
+```
+
+#### On average, who initiated more friendships in our sample: men or women?
+Response:
+#### Write about some ways that you can verify your answer.
+Response:
+```{r Friend Requests by Gender}
+
+```
+
+Response:
+
+***
+
+### Getting Logical
+Notes:
+
+```{r Getting Logical}
+summary(df$www_likes)
+
+summary(df$www_likes > 0)
+
+df$mobile_check_in <- NA  
+df$mobile_check_in <- ifelse(df$mobile_likes > 0, 1, 0)
+df$mobile_check_in <- factor(df$mobile_check_in)
+summary(df$mobile_check_in)
+
+```
+
+Response:
+
+***
+
+### Analyzing One Variable
+Reflection:
+
+***
+
+Click **KnitHTML** to see all of your hard work and to have an html
+page of this lesson, your answers, and your notes!
+
+
+
+
