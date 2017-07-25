@@ -1,0 +1,153 @@
+---
+title: "lesson3_test"
+author: "lht"
+date: "2017骞?7鏈?24鏃?"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## 探索钻石数据（两个变量的关系）
+```{r}
+data("diamonds")
+str(diamonds)
+names(diamonds)
+summary(diamonds$x)
+
+library(ggplot2)
+ggplot(data = diamonds, aes(x = x, y = price)) + 
+  geom_point(alpha = 1/20) +
+  xlim(3,9) +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  geom_smooth(method = 'auto')
+
+
+```
+
+
+## 相关系数
+```{r}
+library(energy)
+with(data = diamonds,cor.test(x,price))
+
+with(data = diamonds,cor.test(y,price))
+
+with(data = diamonds,cor.test(z,price))
+
+
+
+
+
+```
+
+## 价格与宽度
+```{r}
+library(ggplot2)
+ggplot(data = diamonds, aes(x = y, y = price)) + 
+  geom_point(alpha = 1/20) +
+  xlim(3,9) +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  geom_smooth(method = 'auto')
+
+
+```
+
+
+## 价格与深度
+```{r}
+library(ggplot2)
+ggplot(data = diamonds, aes(x = depth, y = price)) + 
+  geom_point(alpha = 1/100)
+
+
+cor.test(diamonds$depth, diamonds$price)
+
+
+```
+
+## 价格与克拉数
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price)) + 
+  geom_point()
+
+ggplot(data = subset(diamonds, carat<max(carat)*0.9 & price<max(price)*0.9), 
+       aes(x = carat, y = price)) + 
+  geom_point()
+  
+  
+```
+
+
+## 价格与体积
+```{r}
+df.diamonds <- subset(diamonds, (x*y*z<=800) & (x*y*z!=0))
+with(df.diamonds, cor.test(price, x*y*z))
+
+ggplot(data = df.diamonds, aes(x = x * y * z, y = price)) + 
+  geom_point() +
+  geom_smooth(method = 'lm', color = 'red') +
+  geom_smooth(method = 'glm', color = 'blue') + 
+  geom_smooth(method = 'glm', color = 'green') + 
+  geom_smooth(method = 'auto', color = 'orange')
+
+
+
+
+```
+
+
+
+## 使用clarity对数据进行分组汇总
+```{r}
+library(dplyr)
+names(diamonds)
+diamondsByClarity <- diamonds %>%
+  group_by(clarity) %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price),
+            min_price = min(price),
+            max_price = max(price),
+            n = n())
+
+diamondsByColor <- diamonds %>%
+  group_by(color) %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price),
+            min_price = min(price),
+            max_price = max(price),
+            n = n())
+
+str(diamondsByClarity)
+str(diamondsByColor)
+table(diamondsByClarity$mean_price)
+
+
+p1 <- ggplot(data = diamondsByClarity, aes(y = mean_price, x = clarity)) + 
+  geom_bar(stat = "identity", color = 'black', fill = 'blue')
+
+p2 <- ggplot(data = diamondsByColor, aes(y = mean_price, x = color)) + 
+  geom_bar(stat = "identity", color = 'black', fill = 'green')
+
+
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 1)
+
+
+qplot(data = diamondsByClarity, x = clarity, y = mean_price)
+
+
+
+```
+
+
+
+
+
