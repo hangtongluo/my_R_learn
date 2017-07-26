@@ -1,0 +1,119 @@
+---
+title: "EDA_multiple"
+author: "lht"
+date: "2017年7月26日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(ggplot2)
+data("diamonds")
+
+str(diamonds)
+ggplot(data = diamonds, aes(x = price)) + 
+  geom_histogram(aes(fill = cut)) + 
+  scale_fill_brewer(type = 'qual') +
+  scale_x_log10() + 
+  facet_wrap(~color)
+  
+
+```
+
+## 价格与按切工填色的图表
+```{r}
+names(diamonds)
+ggplot(data = diamonds, aes(x = table, y = price)) + 
+  geom_point(aes(color = cut)) + 
+  scale_x_continuous(limits = c(50, 80), breaks = seq(50,80,10)) +
+  scale_color_brewer(type = 'qual')
+
+
+```
+
+
+
+```{r}
+ggplot(data = diamonds, aes(x = x*y*z, y = price)) + 
+  geom_point(aes(color = clarity)) + 
+  scale_x_continuous(limits = c(0, 1000))
+
+ggplot(data = diamonds, aes(x = x*y*z, y = price)) + 
+  geom_point(aes(color = clarity)) + 
+  scale_y_log10() +
+  scale_color_brewer(type = 'div') + 
+  scale_x_continuous(limits = c(0, 400))
+  
+```
+
+## create a new variable called 'prop_initiated'
+```{r}
+getwd()
+list.files()
+path = 'C:/Users/Administrator/Desktop/R/EDA_Course_Materials/lesson3/pseudo_facebook.tsv'
+df <- read.delim(path)
+
+names(df)
+df$prop_initiated <- with(df, friendships_initiated / friend_count)
+df$year_joined <- floor(2014 - df$tenure/365)
+df$year_joined.bucket <- cut(df$year_joined, 
+                             breaks = c(2004,2009,2011,2012,2014))
+
+
+
+ggplot(data = subset(df, !is.na(year_joined.bucket)), aes(x = tenure, y = prop_initiated)) + 
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+  
+```
+
+
+
+```{r}
+ggplot(data = subset(df, !is.na(year_joined.bucket)), 
+       aes(x = tenure, y = prop_initiated)) + 
+  geom_smooth(aes(color = year_joined.bucket))
+
+
+```
+
+## 最大的最均值prop_initiated
+```{r}
+library(dplyr)
+subset(df, !is.na(year_joined.bucket)) %>%
+         filter(!is.nan(prop_initiated)) %>%
+         group_by(year_joined.bucket) %>%
+         summarise(mean = mean(prop_initiated))
+
+
+
+```
+
+
+## 经过分组、分面和填色的价格/克拉
+```{r}
+ggplot(data = diamonds, aes(x = cut, y = price/carat)) +
+  geom_point(aes(color = color), position = 'jitter', pch = 20) + 
+  facet_wrap(~clarity) + 
+  scale_color_brewer(type = 'div')
+
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+

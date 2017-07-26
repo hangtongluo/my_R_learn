@@ -1,0 +1,405 @@
+Lesson 5
+========================================================
+
+### Multivariate Data
+Notes:
+
+***
+
+### Moira Perceived Audience Size Colored by Age
+Notes:
+
+***
+
+### Third Qualitative Variable
+Notes:
+
+```{r Third Qualitative Variable}
+library(dplyr)
+library(ggplot2)
+getwd()
+setwd('C:/Users/Administrator/Desktop/R/EDA_Course_Materials/lesson3')
+list.files()
+df <- read.delim("pseudo_facebook.tsv")
+
+
+ggplot(aes(x = age),data = subset(df, !is.na(gender))) + 
+  geom_histogram() +
+  facet_wrap(~gender)
+
+
+ggplot(aes(x = gender, y = age),data = subset(df, !is.na(gender))) + 
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+
+
+ggplot(aes(x = age, y = friend_count),
+       data = subset(df, !is.na(gender))) + 
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+  
+
+df.df_by_age_gender <- df %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup() %>%
+  arrange(age)
+
+head(df.df_by_age_gender)
+
+
+```
+
+***
+
+### Plotting Conditional Summaries
+Notes:
+
+```{r Plotting Conditional Summaries}
+names(df.df_by_age_gender)
+ggplot(data = df.df_by_age_gender, 
+       aes(x = age, y = median_friend_count)) +
+  geom_line(aes(color = gender))
+
+
+
+
+```
+
+***
+
+### Thinking in Ratios
+Notes:
+
+***
+
+### Wide and Long Format
+Notes:
+
+***
+
+### Reshaping Data
+Notes:数据从长格式变成宽格式
+
+```{r}
+# install.packages('reshape2')
+library(reshape2)
+library(tidyr)
+
+head(df.df_by_age_gender)
+
+# reshape2(dcast:dataframe, acast:array,matrix)
+df.df_by_age_gender.wide <- dcast(data = df.df_by_age_gender,
+                                  age ~ gender,
+                                  value.var = 'median_friend_count')
+
+# df.df_by_age_gender.wide$ratio <- df.df_by_age_gender.wide$male / df.df_by_age_gender.wide$female
+df.df_by_age_gender.wide$ratio <- with(data = df.df_by_age_gender.wide, male / female)
+
+# tidyr(spread,gather)
+df.df_by_age_gender.wide <-
+  subset(df.df_by_age_gender[c('age','gender','median_friend_count')], !is.na(gender)) %>%
+  spread(key = gender, value = median_friend_count) %>%
+  mutate(ratio = male / female)
+
+
+```
+
+
+***
+
+### Ratio Plot
+Notes:
+
+```{r Ratio Plot}
+# The linetype parameter can take the values 0-6:
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+
+ggplot(data = df.df_by_age_gender.wide, aes(x = age, y = female / male)) +
+  geom_line() +
+  geom_hline(yintercept = 1, alpha = 0.3, linetype = 2) #进行一些图像的标注
+
+
+```
+
+***
+
+### Third Quantitative Variable
+Notes:
+
+```{r Third Quantitative Variable}
+df$year_joined <- floor(2014 - df$tenure/365)
+
+
+```
+
+***
+
+### Cut a Variable
+Notes:
+
+```{r Cut a Variable}
+summary(df$year_joined)
+table(df$year_joined)
+table(cut(df$year_joined, breaks = c(2004,2009,2011,2012,2014)))
+
+df$year_joined.bucket <- cut(df$year_joined, breaks = c(2004,2009,2011,2012,2014))
+
+
+```
+
+***
+
+### Plotting it All Together
+Notes:
+
+```{r Plotting it All Together}
+ggplot(data = subset(df, !is.na(year_joined.bucket)), aes(x = age,y = friend_count)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median) 
+
+
+```
+
+***
+
+### Plot the Grand Mean
+Notes:
+
+```{r Plot the Grand Mean}
+ggplot(data = subset(df, !is.na(year_joined.bucket)), aes(x = age, y = friend_count)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = mean, linetype = 2)  #是在上一条线的基础上进行操作所以会有均值
+
+
+```
+
+***
+
+### Friending Rate
+Notes:
+
+```{r Friending Rate}
+with(subset(df, tenure >= 1), summary(friend_count / tenure))
+
+
+```
+
+***
+
+### Friendships Initiated
+Notes:
+
+What is the median friend rate?
+
+What is the maximum friend rate?
+
+```{r Friendships Initiated}
+ggplot(data = subset(df, tenure >= 1), 
+       aes(x = tenure, y = friendships_initiated / tenure)) + 
+  geom_line(aes(color = year_joined.bucket))
+
+
+ggplot(data = subset(df, tenure >= 1), 
+       aes(x = tenure, y = friendships_initiated / tenure)) + 
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)
+
+# with(df, friendships_initiated / tenure)
+
+```
+
+***
+
+### Bias-Variance Tradeoff Revisited
+Notes:
+
+```{r Bias-Variance Tradeoff Revisited}
+
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(df, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = 'summary',
+            fun.y = mean)
+
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(df, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
+       data = subset(df, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
+       data = subset(df, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(df, tenure >= 1)) +
+  geom_smooth(aes(color = year_joined.bucket))
+
+
+```
+
+***
+
+### Sean's NFL Fan Sentiment Study
+Notes:
+
+***
+
+### Introducing the Yogurt Data Set
+Notes:
+
+***
+
+### Histograms Revisited
+Notes:
+
+```{r Histograms Revisited}
+yo <- read.csv('yogurt.csv')
+str(yo)
+
+yo$id <- factor(yo$id)
+str(yo)
+
+
+ggplot(data = yo, aes(x = price)) +
+  geom_histogram(fill = 'orange')
+
+
+```
+
+***
+
+### Number of Purchases
+Notes:
+
+```{r Number of Purchases}
+summary(yo$price)
+length(unique(yo$price))
+table(yo$price)
+
+yo <- transform(yo, all.purchases = strawberry + blueberry + 
+                  pina.colada + plain + mixed.berry)
+
+qplot(data = yo, x = all.purchases)
+
+qplot(data = yo, x = all.purchases, binwidth = 1, fill = 'orange')
+
+```
+
+***
+
+### Prices over Time
+Notes:
+
+```{r Prices over Time}
+ggplot(data = yo, aes(x = time, y = price)) + 
+  geom_point(alpha = 1/4, position = 'jitter', shape = 21, fill = I('#f79420'))
+
+ggplot(data = yo, aes(x = time, y = price)) + 
+  geom_jitter(alpha = 1/4, shape = 21, fill = I('#f79420'))
+
+
+
+```
+
+***
+
+### Sampling Observations
+Notes:
+
+***
+
+### Looking at Samples of Households
+
+```{r Looking at Sample of Households}
+set.seed(4230)
+sample.ids <- sample(levels(yo$id), 16)
+
+sample.ids
+
+ggplot(aes(x = time, y = price), data = subset(yo, id %in% sample.ids)) + 
+  facet_wrap(~id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
+
+
+```
+
+***
+
+### The Limits of Cross Sectional Data
+Notes:
+
+***
+
+### Many Variables
+Notes:
+
+***
+
+### Scatterplot Matrix
+Notes:
+```{r}
+# install.packages("GGally")
+library(GGally)
+theme_set(theme_minimal(20))  #设置主题
+
+set.seed(1836)
+df_subset <- df[, c(2:7)]
+names(df_subset)
+ggpairs(df_subset[sample.int(nrow(df_subset), 1000), ])
+
+ggpairs(df_subset[sample.int(nrow(df_subset), 1000), ], axisLabels = 'internal')
+
+```
+
+***
+
+### Even More Variables
+Notes:
+
+***
+
+### Heat Maps
+Notes:
+
+```{r}
+nci <- read.table("nci.tsv")
+colnames(nci) <- c(1:64)
+```
+
+```{r}
+library(reshape2)
+nci.long.samp <- melt(as.matrix(nci[1:200,]))
+names(nci.long.samp) <- c("gene", "case", "value")
+head(nci.long.samp)
+
+ggplot(aes(y = gene, x = case, fill = value),
+  data = nci.long.samp) +
+  geom_tile() +
+  scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
+```
+
+
+***
+
+### Analyzing Three of More Variables
+Reflection:
+
+***
+
+Click **KnitHTML** to see all of your hard work and to have an html
+page of this lesson, your answers, and your notes!
+
